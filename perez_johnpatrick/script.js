@@ -64,3 +64,47 @@ function sortCommentsDescending() {
     comments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     displayComments();
 }
+
+function searchCountry() {
+    const search = document.querySelector('#search').value;
+
+    fetch(`https://restcountries.com/v3.1/name/${search}`)
+        .then(response => response.json())
+        .then(countryData => {
+            const region = countryData[0].region;
+
+            fetch(`https://restcountries.com/v3.1/region/${region}`)
+                .then(response => response.json())
+                .then(regionData => {
+                    displayCountryDetails(countryData[0]);
+                    displaySameRegionCountries(regionData);
+                })
+                .catch(error => console.error
+                    ('Error fetching region data:', error));
+        })
+        .catch(error => console.error('Error fetching country data:', error));
+}
+
+function displayCountryDetails(country) {
+    const detailsList = document.querySelector('#Details_List');
+    detailsList.innerHTML = ` 
+    <h2>${country.name.common}</h2>
+    <p>Capital: ${country.capital}</p>
+    <p>Continents: ${country.continents}</p>
+    <p>Population: ${country.population}</p>
+    <p>Region: ${country.region}</p>
+    <p>Area Size: ${country.area}</p>
+  `; 
+}
+
+function displaySameRegionCountries(regionData) {
+    const regionList = document.querySelector('#Region_List');
+    regionList.innerHTML = `
+    <h3>Other Countries in the Same Region:</h3>
+    <ul>
+      ${regionData
+        .map((country) => `<li>${country.name.common}</li>`)
+        .join("")}
+    </ul>
+  `; 
+}
